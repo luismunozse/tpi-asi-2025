@@ -40,7 +40,15 @@ export default function CabanasGerente() {
       banos: 2,
       estado: 'Disponible',
       precio: 25000,
-      servicios: ['WiFi', 'TV', 'Cocina', 'Calefacción']
+      precioBooking: 27000,
+      servicios: ['WiFi', 'TV', 'Cocina', 'Calefacción', 'Estacionamiento'],
+      reservasMes: 12,
+      ocupacionMes: 85,
+      ingresosMes: 255000,
+      ultimaReserva: '2025-10-15',
+      proximaReserva: '2025-10-22',
+      ultimaLimpieza: '2025-10-18',
+      rating: 4.8
     },
     { 
       id: 2, 
@@ -50,7 +58,19 @@ export default function CabanasGerente() {
       banos: 2,
       estado: 'Ocupada',
       precio: 25000,
-      servicios: ['WiFi', 'TV', 'Cocina', 'Calefacción']
+      precioBooking: 27000,
+      servicios: ['WiFi', 'TV', 'Cocina', 'Calefacción', 'Estacionamiento'],
+      reservasMes: 15,
+      ocupacionMes: 92,
+      ingresosMes: 345000,
+      reservaActual: {
+        cliente: 'Juan Pérez',
+        checkin: '2025-10-20',
+        checkout: '2025-10-25',
+        pasajeros: 4
+      },
+      ultimaLimpieza: '2025-10-20',
+      rating: 4.9
     },
     { 
       id: 3, 
@@ -60,7 +80,15 @@ export default function CabanasGerente() {
       banos: 1,
       estado: 'Disponible',
       precio: 18000,
-      servicios: ['WiFi', 'TV', 'Jacuzzi', 'Chimenea']
+      precioBooking: 19500,
+      servicios: ['WiFi', 'TV', 'Jacuzzi', 'Chimenea', 'Calefacción'],
+      reservasMes: 18,
+      ocupacionMes: 78,
+      ingresosMes: 280800,
+      ultimaReserva: '2025-10-17',
+      proximaReserva: '2025-10-25',
+      ultimaLimpieza: '2025-10-17',
+      rating: 4.7
     },
     { 
       id: 4, 
@@ -70,7 +98,16 @@ export default function CabanasGerente() {
       banos: 3,
       estado: 'En Limpieza',
       precio: 35000,
-      servicios: ['WiFi', 'TV', 'Cocina completa', 'Parrilla']
+      precioBooking: 38000,
+      servicios: ['WiFi', 'TV', 'Cocina completa', 'Parrilla', 'Calefacción', 'Estacionamiento'],
+      reservasMes: 8,
+      ocupacionMes: 65,
+      ingresosMes: 182000,
+      ultimaReserva: '2025-10-15',
+      proximaReserva: '2025-10-22',
+      ultimaLimpieza: '2025-10-18',
+      proximaLimpieza: '2025-10-22',
+      rating: 4.6
     },
     { 
       id: 5, 
@@ -80,7 +117,33 @@ export default function CabanasGerente() {
       banos: 1,
       estado: 'Disponible',
       precio: 20000,
-      servicios: ['WiFi', 'TV', 'Cocina', 'Calefacción']
+      precioBooking: 21500,
+      servicios: ['WiFi', 'TV', 'Cocina', 'Calefacción'],
+      reservasMes: 14,
+      ocupacionMes: 88,
+      ingresosMes: 246400,
+      ultimaReserva: '2025-10-16',
+      proximaReserva: '2025-10-19',
+      ultimaLimpieza: '2025-10-16',
+      rating: 4.5
+    },
+    { 
+      id: 6, 
+      nombre: 'Cabaña Standard #6', 
+      capacidad: 4, 
+      habitaciones: 2, 
+      banos: 1,
+      estado: 'Mantenimiento',
+      precio: 20000,
+      precioBooking: 21500,
+      servicios: ['WiFi', 'TV', 'Cocina', 'Calefacción'],
+      reservasMes: 10,
+      ocupacionMes: 72,
+      ingresosMes: 144000,
+      ultimaReserva: '2025-10-14',
+      proximaReserva: '2025-10-18',
+      problema: 'Problemas eléctricos reportados',
+      rating: 4.4
     },
   ]
 
@@ -92,6 +155,8 @@ export default function CabanasGerente() {
         return 'bg-red-100 text-red-700'
       case 'En Limpieza':
         return 'bg-yellow-100 text-yellow-700'
+      case 'Mantenimiento':
+        return 'bg-orange-100 text-orange-700'
       default:
         return 'bg-gray-100 text-gray-700'
     }
@@ -191,6 +256,40 @@ export default function CabanasGerente() {
                       </span>
                     ))}
                   </div>
+                </div>
+
+                {/* Información adicional */}
+                <div className="bg-gray-50 rounded-lg p-3 mb-4 space-y-2 text-xs">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <span className="text-gray-600">Reservas este mes:</span>
+                      <span className="font-semibold text-gray-900 ml-1">{cabana.reservasMes}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Ocupación:</span>
+                      <span className="font-semibold text-gray-900 ml-1">{cabana.ocupacionMes}%</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Ingresos mes:</span>
+                      <span className="font-semibold text-primary-600 ml-1">${cabana.ingresosMes.toLocaleString('es-AR')}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Rating:</span>
+                      <span className="font-semibold text-gray-900 ml-1">⭐ {cabana.rating}</span>
+                    </div>
+                  </div>
+                  {cabana.reservaActual && (
+                    <div className="mt-2 pt-2 border-t border-gray-200">
+                      <span className="text-gray-600">Reserva actual:</span>
+                      <span className="text-gray-900 ml-1">{cabana.reservaActual.cliente}</span>
+                      <span className="text-gray-600 ml-2">({cabana.reservaActual.checkin} - {cabana.reservaActual.checkout})</span>
+                    </div>
+                  )}
+                  {cabana.problema && (
+                    <div className="mt-2 pt-2 border-t border-red-200">
+                      <span className="text-red-600 font-semibold">⚠ {cabana.problema}</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex gap-2">
