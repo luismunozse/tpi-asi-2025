@@ -2,23 +2,66 @@
 
 import Link from 'next/link'
 import { Calendar, Home, MapPin, Phone, Mail, Star } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import DatePicker from '@/components/DatePicker'
 import GuestSelector from '@/components/GuestSelector'
+import UserAvatar from '@/components/UserAvatar'
 
 export default function HomePage() {
   const [checkIn, setCheckIn] = useState('')
   const [checkOut, setCheckOut] = useState('')
   const [guests, setGuests] = useState(2)
+  const [tipoAlojamiento, setTipoAlojamiento] = useState('')
+  const [clienteLogueado, setClienteLogueado] = useState(false)
+
+  useEffect(() => {
+    const cliente = localStorage.getItem('cliente')
+    setClienteLogueado(!!cliente)
+    
+    // Escuchar cambios en localStorage
+    const handleStorageChange = () => {
+      const cliente = localStorage.getItem('cliente')
+      setClienteLogueado(!!cliente)
+    }
+    
+    window.addEventListener('storage', handleStorageChange)
+    
+    // Verificar periódicamente
+    const interval = setInterval(() => {
+      const cliente = localStorage.getItem('cliente')
+      setClienteLogueado(!!cliente)
+    }, 500)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      clearInterval(interval)
+    }
+  }, [])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     // Redirigir a página de búsqueda con parámetros
-    window.location.href = `/buscar?checkin=${checkIn}&checkout=${checkOut}&guests=${guests}`
+    const params = new URLSearchParams({
+      checkin: checkIn,
+      checkout: checkOut,
+      guests: guests.toString()
+    })
+    if (tipoAlojamiento) {
+      params.append('tipo', tipoAlojamiento)
+    }
+    window.location.href = `/buscar?${params.toString()}`
   }
 
+  const tiposAlojamiento = [
+    { value: '', label: 'Todos los tipos' },
+    { value: 'familiar', label: 'Cabaña Familiar' },
+    { value: 'romantica', label: 'Cabaña Romántica' },
+    { value: 'grande', label: 'Cabaña Grande' },
+    { value: 'standard', label: 'Cabaña Standard' }
+  ]
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-50">
       {/* Header */}
       <header className="bg-white shadow-md">
         <div className="container mx-auto px-4 py-4">
@@ -30,7 +73,7 @@ export default function HomePage() {
                 <p className="text-sm text-gray-600">San Carlos de Bariloche</p>
               </div>
             </div>
-            <nav className="hidden md:flex space-x-6">
+            <nav className="hidden md:flex space-x-4 items-center">
               <Link href="/" className="text-gray-700 hover:text-primary-600 transition">
                 Inicio
               </Link>
@@ -40,9 +83,12 @@ export default function HomePage() {
               <Link href="/contacto" className="text-gray-700 hover:text-primary-600 transition">
                 Contacto
               </Link>
-              <Link href="/login" className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition">
-                Acceso Personal
-              </Link>
+              <UserAvatar />
+              {!clienteLogueado && (
+                <Link href="/login-cliente" className="text-primary-600 hover:text-primary-700 font-semibold transition">
+                  Iniciar Sesión
+                </Link>
+              )}
             </nav>
           </div>
         </div>
@@ -114,7 +160,7 @@ export default function HomePage() {
           <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">
             Encuentra tu cabaña perfecta
           </h3>
-          <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-5 gap-6">
             <DatePicker
               label="Check-in"
               value={checkIn}
@@ -136,6 +182,25 @@ export default function HomePage() {
               onChange={setGuests}
               label="Huéspedes"
             />
+
+            <div className="flex flex-col">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                <Home className="inline h-4 w-4 mr-1" />
+                Tipo de Alojamiento
+              </label>
+              <select
+                value={tipoAlojamiento}
+                onChange={(e) => setTipoAlojamiento(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white text-gray-900 h-12"
+              >
+                {tiposAlojamiento.map((tipo) => (
+                  <option key={tipo.value} value={tipo.value}>
+                    {tipo.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div className="flex items-end">
               <button
                 type="submit"
@@ -208,9 +273,47 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-6">
-        <div className="container mx-auto px-4 text-center">
-          <p>&copy; 2025 Estancia del Carmen. Todos los derechos reservados.</p>
+      <footer className="bg-gray-900 text-white py-8">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
+            <div>
+              <div className="flex items-center space-x-2 mb-4">
+                <Home className="h-6 w-6 text-primary-400" />
+                <span className="text-xl font-bold">Estancia del Carmen</span>
+              </div>
+              <p className="text-gray-400 text-sm">
+                Tu hogar en Bariloche. Experiencias únicas en el corazón de la Patagonia.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Enlaces Rápidos</h4>
+              <div className="space-y-2 text-sm">
+                <Link href="/" className="block text-gray-400 hover:text-white transition">
+                  Inicio
+                </Link>
+                <Link href="/cabanas" className="block text-gray-400 hover:text-white transition">
+                  Cabañas
+                </Link>
+                <Link href="/contacto" className="block text-gray-400 hover:text-white transition">
+                  Contacto
+                </Link>
+              </div>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Acceso</h4>
+              <div className="space-y-2">
+                <Link 
+                  href="/login" 
+                  className="inline-block bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition text-sm font-semibold"
+                >
+                  Acceso Personal
+                </Link>
+              </div>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 pt-6 text-center text-gray-400 text-sm">
+            <p>&copy; 2025 Estancia del Carmen. Todos los derechos reservados.</p>
+          </div>
         </div>
       </footer>
     </div>

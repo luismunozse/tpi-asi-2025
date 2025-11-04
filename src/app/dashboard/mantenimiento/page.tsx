@@ -65,8 +65,8 @@ export default function MantenimientoDashboard() {
                 <p className="text-sm text-gray-600">Tareas Hoy</p>
                 <p className="text-3xl font-bold text-gray-800 mt-1">{stats.tareasHoy}</p>
               </div>
-              <div className="bg-blue-100 rounded-full p-3">
-                <ClipboardList className="h-8 w-8 text-blue-600" />
+              <div className="bg-primary-100 rounded-full p-3">
+                <ClipboardList className="h-8 w-8 text-primary-600" />
               </div>
             </div>
           </div>
@@ -143,7 +143,7 @@ export default function MantenimientoDashboard() {
                         tarea.estado === 'Completado' 
                           ? 'bg-green-100 text-green-700'
                           : tarea.estado === 'En Progreso'
-                          ? 'bg-blue-100 text-blue-700'
+                          ? 'bg-primary-100 text-primary-700'
                           : 'bg-gray-100 text-gray-700'
                       }`}>
                         {tarea.estado}
@@ -153,7 +153,7 @@ export default function MantenimientoDashboard() {
                       {tarea.estado === 'Pendiente' && (
                         <button
                           onClick={() => cambiarEstado(tarea.id, 'En Progreso')}
-                          className="text-blue-600 hover:text-blue-700 font-semibold"
+                          className="text-primary-600 hover:text-primary-700 font-semibold"
                         >
                           Iniciar
                         </button>

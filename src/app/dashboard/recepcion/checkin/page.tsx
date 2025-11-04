@@ -158,8 +158,8 @@ function CheckinContent() {
                 </div>
               </div>
 
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <p className="text-sm text-blue-800">
+              <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
+                <p className="text-sm text-primary-800">
                   <strong>Instrucción:</strong> Solicite al huésped su número de reserva o documento de identidad para verificar su reserva en el sistema.
                 </p>
               </div>

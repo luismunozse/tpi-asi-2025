@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { Calendar, Users, CreditCard, Shield, Star, ChevronDown } from 'lucide-react'
 
 interface BookingCardProps {
@@ -34,6 +34,7 @@ export default function BookingCard({
 }: BookingCardProps) {
   const [showGuestSelector, setShowGuestSelector] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const guestSelectorRef = useRef<HTMLDivElement>(null)
   const [guestBreakdown, setGuestBreakdown] = useState({
     adultos: guests,
     ninos: 0,
@@ -57,32 +58,84 @@ export default function BookingCard({
     onGuestsChange(totalGuests)
   }, [guestBreakdown, onGuestsChange])
 
-  // Calcular noches
-  const nights = checkIn && checkOut 
-    ? Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24))
-    : 0
+  // Cerrar dropdown al hacer click fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (guestSelectorRef.current && !guestSelectorRef.current.contains(event.target as Node)) {
+        setShowGuestSelector(false)
+      }
+    }
 
-  // Calcular precios
+    if (showGuestSelector) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showGuestSelector])
+
+  // Calcular noches - usar useMemo para que sea reactivo
+  const nights = useMemo(() => {
+    if (!checkIn || !checkOut) return 0
+    try {
+      // Asegurar que las fechas estén en formato correcto
+      const inicio = new Date(checkIn + 'T00:00:00')
+      const fin = new Date(checkOut + 'T00:00:00')
+      
+      // Verificar que las fechas sean válidas
+      if (isNaN(inicio.getTime()) || isNaN(fin.getTime())) return 0
+      
+      const diff = fin.getTime() - inicio.getTime()
+      const noches = Math.ceil(diff / (1000 * 60 * 60 * 24))
+      return noches > 0 ? noches : 0
+    } catch (error) {
+      console.error('Error calculando noches:', error)
+      return 0
+    }
+  }, [checkIn, checkOut])
+
+  const tieneFechasValidas = checkIn && checkOut && nights > 0
+
+  // Calcular precios - usar useMemo para que sea reactivo
   const precioPorNoche = cabana.precio
-  const subtotal = precioPorNoche * nights
-
-  // Detectar temporada para aplicar descuentos
-  const getSeasonDiscount = () => {
-    if (!checkIn) return 0
-    const month = new Date(checkIn).getMonth() + 1
-    if (month >= 4 && month <= 5) return 0.15 // Otoño - 15% descuento
-    if (month >= 9 && month <= 11) return 0.10 // Primavera - 10% descuento
-    return 0
-  }
-
-  const descuento = getSeasonDiscount()
-  const descuentoMonto = Math.round(subtotal * descuento)
-  const subtotalConDescuento = subtotal - descuentoMonto
   
-  // Calcular cargos adicionales sobre el subtotal con descuento
-  const comisionServicio = Math.round(subtotalConDescuento * 0.12) // 12% de comisión
-  const impuestos = Math.round(subtotalConDescuento * 0.21) // 21% IVA
-  const total = subtotalConDescuento + comisionServicio + impuestos
+  const { subtotal, descuento, descuentoMonto, subtotalConDescuento, comisionServicio, impuestos, total } = useMemo(() => {
+    const subtotalCalc = precioPorNoche * nights
+
+    // Detectar temporada para aplicar descuentos
+    const getSeasonDiscount = () => {
+      if (!checkIn) return 0
+      try {
+        const fecha = new Date(checkIn + 'T00:00:00')
+        const month = fecha.getMonth() + 1
+        if (month >= 4 && month <= 5) return 0.15 // Otoño - 15% descuento
+        if (month >= 9 && month <= 11) return 0.10 // Primavera - 10% descuento
+        return 0
+      } catch {
+        return 0
+      }
+    }
+
+    const descuentoCalc = getSeasonDiscount()
+    const descuentoMontoCalc = Math.round(subtotalCalc * descuentoCalc)
+    const subtotalConDescuentoCalc = subtotalCalc - descuentoMontoCalc
+    
+    // Calcular cargos adicionales sobre el subtotal con descuento
+    const comisionServicioCalc = Math.round(subtotalConDescuentoCalc * 0.12) // 12% de comisión
+    const impuestosCalc = Math.round(subtotalConDescuentoCalc * 0.21) // 21% IVA
+    const totalCalc = subtotalConDescuentoCalc + comisionServicioCalc + impuestosCalc
+
+    return {
+      subtotal: subtotalCalc,
+      descuento: descuentoCalc,
+      descuentoMonto: descuentoMontoCalc,
+      subtotalConDescuento: subtotalConDescuentoCalc,
+      comisionServicio: comisionServicioCalc,
+      impuestos: impuestosCalc,
+      total: totalCalc
+    }
+  }, [precioPorNoche, nights, checkIn])
 
   const handleReservar = async () => {
     setIsLoading(true)
@@ -93,7 +146,7 @@ export default function BookingCard({
 
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl border border-gray-200 sticky top-6 overflow-hidden">
+    <div className="bg-white rounded-2xl shadow-xl border border-gray-200 sticky top-6">
       {/* Header con precio */}
       <div className="p-6 border-b border-gray-100">
         <div className="flex items-start justify-between mb-4">
@@ -118,7 +171,7 @@ export default function BookingCard({
         </div>
 
         {/* Selector de fechas y huéspedes */}
-        <div className="border border-gray-300 rounded-xl overflow-hidden">
+        <div className="border border-gray-300 rounded-xl">
           {/* Fechas */}
           <div className="grid grid-cols-2">
             <div className="border-r border-gray-300 p-4">
@@ -148,7 +201,7 @@ export default function BookingCard({
           </div>
 
           {/* Huéspedes */}
-          <div className="border-t border-gray-300 p-4">
+          <div className="border-t border-gray-300 p-4 relative" ref={guestSelectorRef}>
             <label className="block text-xs font-semibold text-gray-800 uppercase tracking-wide mb-2">
               Huéspedes
             </label>
@@ -163,11 +216,11 @@ export default function BookingCard({
                     : `${totalGuests} ${totalGuests === 1 ? 'viajero' : 'viajeros'}`
                   }
                 </span>
-                <ChevronDown className="h-4 w-4" />
+                <ChevronDown className={`h-4 w-4 transition-transform ${showGuestSelector ? 'rotate-180' : ''}`} />
               </button>
               
               {showGuestSelector && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-10 p-6">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-2xl z-[100] p-6 max-h-[400px] overflow-y-auto">
                   <div className="space-y-6">
                     {/* Adultos */}
                     <div className="flex items-center justify-between">
@@ -308,7 +361,7 @@ export default function BookingCard({
           className={`w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 ${
             !checkIn || !checkOut || isLoading
               ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:from-pink-600 hover:to-rose-600 hover:shadow-lg transform hover:-translate-y-0.5'
+              : 'bg-primary-600 text-white hover:bg-primary-700 hover:shadow-lg transform hover:-translate-y-0.5'
           }`}
         >
           {isLoading ? (
@@ -327,14 +380,14 @@ export default function BookingCard({
       </div>
 
       {/* Desglose de precios */}
-      {nights > 0 && (
+      {tieneFechasValidas && (
         <div className="border-t border-gray-100 p-6 space-y-3">
           <div className="space-y-3">
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">
                 ${precioPorNoche.toLocaleString('es-AR')} × {nights} {nights === 1 ? 'noche' : 'noches'}
               </span>
-              <span className="font-medium">${subtotal.toLocaleString('es-AR')}</span>
+              <span className="font-medium text-gray-900">${subtotal.toLocaleString('es-AR')}</span>
             </div>
 
             {descuento > 0 && (
@@ -350,24 +403,43 @@ export default function BookingCard({
 
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Comisión de servicio (12%)</span>
-              <span className="font-medium">${comisionServicio.toLocaleString('es-AR')}</span>
+              <span className="font-medium text-gray-900">${comisionServicio.toLocaleString('es-AR')}</span>
             </div>
 
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">Impuestos (21%)</span>
-              <span className="font-medium">${impuestos.toLocaleString('es-AR')}</span>
+              <span className="font-medium text-gray-900">${impuestos.toLocaleString('es-AR')}</span>
             </div>
           </div>
 
-          <div className="border-t border-gray-200 pt-3">
-            <div className="flex justify-between text-lg font-bold">
-              <span>Total</span>
-              <span>${total.toLocaleString('es-AR')}</span>
+          <div className="border-t border-gray-200 pt-4 mt-4">
+            <div className="flex justify-between items-center">
+              <span className="text-lg font-bold text-gray-900">Total</span>
+              <div className="text-right">
+                <div className="text-2xl font-bold text-primary-600">
+                  ${total.toLocaleString('es-AR')}
+                </div>
+                {nights > 0 && (
+                  <div className="text-xs text-gray-500 mt-1">
+                    Por {nights} {nights === 1 ? 'noche' : 'noches'}
+                  </div>
+                )}
+              </div>
             </div>
-            <p className="text-xs text-gray-500 mt-1">
-              Ahorro total: ${descuentoMonto.toLocaleString('es-AR')}
-            </p>
+            {descuentoMonto > 0 && (
+              <p className="text-xs text-green-600 mt-2 font-medium">
+                ✓ Ahorro total: ${descuentoMonto.toLocaleString('es-AR')}
+              </p>
+            )}
           </div>
+        </div>
+      )}
+      
+      {!tieneFechasValidas && checkIn && checkOut && (
+        <div className="border-t border-gray-100 p-6">
+          <p className="text-sm text-gray-600 text-center">
+            Selecciona fechas válidas para ver el precio total
+          </p>
         </div>
       )}
 

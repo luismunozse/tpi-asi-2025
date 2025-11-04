@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Home, Users, Bed, Bath, Wifi, Tv, Coffee, Star, Calendar, MapPin, Phone, Mail, Search } from 'lucide-react'
+import UserAvatar from '@/components/UserAvatar'
 
 interface Cabana {
   id: number
@@ -176,7 +177,7 @@ export default function CabanasPage() {
                 <p className="text-sm text-gray-600">San Carlos de Bariloche</p>
               </div>
             </Link>
-            <nav className="hidden md:flex space-x-6">
+            <nav className="hidden md:flex space-x-4 items-center">
               <Link href="/" className="text-gray-700 hover:text-primary-600 transition">
                 Inicio
               </Link>
@@ -186,9 +187,7 @@ export default function CabanasPage() {
               <Link href="/contacto" className="text-gray-700 hover:text-primary-600 transition">
                 Contacto
               </Link>
-              <Link href="/login" className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition">
-                Acceso Personal
-              </Link>
+              <UserAvatar />
             </nav>
           </div>
         </div>
@@ -290,9 +289,13 @@ export default function CabanasPage() {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {cabanasFiltradas.map(cabana => (
-              <div key={cabana.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+              <Link
+                key={cabana.id}
+                href={`/cabanas/${cabana.id}`}
+                className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer block group"
+              >
                 {/* Imagen principal */}
-                <div className="relative h-64 overflow-hidden group">
+                <div className="relative h-64 overflow-hidden">
                   <div 
                     className="h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
                     style={{ backgroundImage: `url(${cabana.imagen})` }}
@@ -366,15 +369,18 @@ export default function CabanasPage() {
                       </p>
                       <p className="text-xs text-gray-500">Desayuno incluido</p>
                     </div>
-                    <Link
-                      href={`/reservar?cabana=${cabana.id}`}
-                      className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-all font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                    <div
+                      onClick={(e) => {
+                        e.preventDefault()
+                        window.location.href = `/reservar?cabana=${cabana.id}`
+                      }}
+                      className="bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition-all font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 cursor-pointer"
                     >
                       Reservar Ahora
-                    </Link>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}
@@ -438,7 +444,7 @@ export default function CabanasPage() {
             </div>
             <div>
               <h4 className="font-semibold mb-4">Enlaces</h4>
-              <div className="space-y-2">
+              <div className="space-y-2 mb-4">
                 <Link href="/" className="block text-gray-400 hover:text-white transition">
                   Inicio
                 </Link>
@@ -447,6 +453,14 @@ export default function CabanasPage() {
                 </Link>
                 <Link href="/contacto" className="block text-gray-400 hover:text-white transition">
                   Contacto
+                </Link>
+              </div>
+              <div className="pt-4 border-t border-gray-800">
+                <Link 
+                  href="/login" 
+                  className="inline-block bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition text-sm font-semibold"
+                >
+                  Acceso Personal
                 </Link>
               </div>
             </div>

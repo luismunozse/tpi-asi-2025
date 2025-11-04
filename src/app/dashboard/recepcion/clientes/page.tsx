@@ -235,8 +235,8 @@ export default function ClientesRecepcion() {
                 <p className="text-sm text-gray-600">Total Clientes</p>
                 <p className="text-3xl font-bold text-gray-800 mt-1">{estadisticas.total}</p>
               </div>
-              <div className="bg-blue-100 rounded-full p-3">
-                <User className="h-8 w-8 text-blue-600" />
+              <div className="bg-primary-100 rounded-full p-3">
+                <User className="h-8 w-8 text-primary-600" />
               </div>
             </div>
           </div>

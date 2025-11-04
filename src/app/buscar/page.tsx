@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Home, Users, Bed, Bath, ChevronLeft, Calendar } from 'lucide-react'
 import BookingCard from '@/components/BookingCard'
+import UserAvatar from '@/components/UserAvatar'
 
 interface Cabana {
   id: number
@@ -27,6 +28,18 @@ function SearchContent() {
   const [checkIn, setCheckIn] = useState(searchParams.get('checkin') || '')
   const [checkOut, setCheckOut] = useState(searchParams.get('checkout') || '')
   const [guests, setGuests] = useState(Number(searchParams.get('guests')) || 2)
+  const [tipoAlojamiento, setTipoAlojamiento] = useState(searchParams.get('tipo') || '')
+  const [cabanaSeleccionada, setCabanaSeleccionada] = useState<Cabana | null>(null)
+
+  // Función para obtener el tipo de cabaña basado en el nombre
+  const getTipoCabana = (nombre: string): string => {
+    const nombreLower = nombre.toLowerCase()
+    if (nombreLower.includes('familiar')) return 'familiar'
+    if (nombreLower.includes('romántica') || nombreLower.includes('romantica')) return 'romantica'
+    if (nombreLower.includes('grande')) return 'grande'
+    if (nombreLower.includes('standard')) return 'standard'
+    return ''
+  }
 
   useEffect(() => {
     // Simular carga de cabañas disponibles
@@ -86,12 +99,18 @@ function SearchContent() {
         }
       ]
       
-      // Filtrar por capacidad
-      const filtered = cabanasData.filter(c => c.capacidad >= guests)
+      // Filtrar por capacidad y tipo de alojamiento
+      let filtered = cabanasData.filter(c => c.capacidad >= guests)
+      
+      // Filtrar por tipo de alojamiento si está especificado
+      if (tipoAlojamiento) {
+        filtered = filtered.filter(c => getTipoCabana(c.nombre) === tipoAlojamiento)
+      }
+      
       setCabanas(filtered)
       setLoading(false)
     }, 800)
-  }, [guests])
+  }, [guests, tipoAlojamiento])
 
   const handleReserva = (cabanaId: number) => {
     window.location.href = `/reservar?cabana=${cabanaId}&checkin=${checkIn}&checkout=${checkOut}&guests=${guests}`
@@ -189,10 +208,13 @@ function SearchContent() {
                 <p className="text-sm text-gray-600">San Carlos de Bariloche</p>
               </div>
             </Link>
-            <Link href="/" className="text-gray-700 hover:text-primary-600 flex items-center">
-              <ChevronLeft className="h-4 w-4 mr-1" />
-              Volver al inicio
-            </Link>
+            <div className="flex items-center gap-4">
+              <UserAvatar />
+              <Link href="/" className="text-gray-700 hover:text-primary-600 flex items-center">
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                Volver al inicio
+              </Link>
+            </div>
           </div>
         </div>
       </header>
@@ -225,15 +247,15 @@ function SearchContent() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar con Booking Card */}
           <div className="lg:col-span-1">
-            {/* Booking Card para la primera cabaña */}
-            {cabanas.length > 0 && (
+            {/* Booking Card solo cuando hay una cabaña seleccionada */}
+            {cabanaSeleccionada && (
               <BookingCard
                 cabana={{
-                  id: cabanas[0].id,
-                  nombre: cabanas[0].nombre,
-                  precio: cabanas[0].precio,
-                  precioBooking: cabanas[0].precioBooking,
-                  imagen: cabanas[0].imagen,
+                  id: cabanaSeleccionada.id,
+                  nombre: cabanaSeleccionada.nombre,
+                  precio: cabanaSeleccionada.precio,
+                  precioBooking: cabanaSeleccionada.precioBooking,
+                  imagen: cabanaSeleccionada.imagen,
                   calificacion: 4.8,
                   reseñas: 127
                 }}
@@ -246,7 +268,7 @@ function SearchContent() {
                 onReservar={() => {
                   // Redirigir a la página de reserva con los datos
                   const params = new URLSearchParams({
-                    cabana: cabanas[0].id.toString(),
+                    cabana: cabanaSeleccionada.id.toString(),
                     checkin: checkIn,
                     checkout: checkOut,
                     guests: guests.toString()
@@ -254,6 +276,13 @@ function SearchContent() {
                   window.location.href = `/reservar?${params.toString()}`
                 }}
               />
+            )}
+            {!cabanaSeleccionada && cabanas.length > 0 && (
+              <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-6 text-center">
+                <p className="text-gray-600 text-sm mb-2">
+                  Selecciona una cabaña para ver el precio y reservar
+                </p>
+              </div>
             )}
           </div>
 
@@ -287,19 +316,26 @@ function SearchContent() {
                 </div>
                 <div className="space-y-6">
               {cabanas.map(cabana => (
-                <div key={cabana.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+                <div
+                  key={cabana.id}
+                  onClick={() => setCabanaSeleccionada(cabana)}
+                  className={`bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer block group ${
+                    cabanaSeleccionada?.id === cabana.id ? 'ring-2 ring-primary-500 shadow-xl' : ''
+                  }`}
+                >
                   <div className="md:flex">
-                    <div className="md:w-2/5 relative overflow-hidden group">
+                    <div className="md:w-2/5 relative overflow-hidden">
                       <div 
                         className="h-64 md:h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
                         style={{ backgroundImage: `url(${cabana.imagen})` }}
                       />
+                      <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-30 transition" />
                       <div className="absolute top-4 right-4 bg-white px-3 py-1 rounded-full shadow-lg">
                         <span className="text-sm font-semibold text-primary-600">Disponible</span>
                       </div>
                     </div>
                     <div className="p-6 md:w-3/5">
-                      <h3 className="text-2xl font-bold text-gray-800 mb-2">{cabana.nombre}</h3>
+                      <h3 className="text-2xl font-bold text-gray-800 mb-2 group-hover:text-primary-600 transition">{cabana.nombre}</h3>
                       <div className="flex flex-wrap gap-4 mb-3 text-sm text-gray-600">
                         <span className="flex items-center">
                           <Users className="h-4 w-4 mr-1" />
@@ -342,6 +378,17 @@ function SearchContent() {
                         </div>
                       </div>
                     </div>
+                  </div>
+                  
+                  {/* Botón para ver detalles */}
+                  <div className="p-6 border-t border-gray-100">
+                    <Link
+                      href={`/cabanas/${cabana.id}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="block text-center text-primary-600 hover:text-primary-700 font-semibold text-sm transition"
+                    >
+                      Ver detalles completos →
+                    </Link>
                   </div>
                 </div>
               ))}

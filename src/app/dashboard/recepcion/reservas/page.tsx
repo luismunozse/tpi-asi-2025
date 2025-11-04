@@ -142,7 +142,7 @@ export default function ReservasRecepcion() {
       case 'Pendiente':
         return 'bg-yellow-100 text-yellow-700'
       case 'Check-in':
-        return 'bg-blue-100 text-blue-700'
+        return 'bg-primary-100 text-primary-700'
       case 'Check-out':
         return 'bg-purple-100 text-purple-700'
       case 'Cancelada':
@@ -155,7 +155,7 @@ export default function ReservasRecepcion() {
   const getCanalColor = (canal: string) => {
     switch (canal) {
       case 'Web':
-        return 'bg-blue-100 text-blue-700'
+        return 'bg-primary-100 text-primary-700'
       case 'Booking':
         return 'bg-orange-100 text-orange-700'
       case 'Telefono':
@@ -225,8 +225,8 @@ export default function ReservasRecepcion() {
                 <p className="text-sm text-gray-600">Total Reservas</p>
                 <p className="text-3xl font-bold text-gray-800 mt-1">{estadisticas.total}</p>
               </div>
-              <div className="bg-blue-100 rounded-full p-3">
-                <Calendar className="h-8 w-8 text-blue-600" />
+              <div className="bg-primary-100 rounded-full p-3">
+                <Calendar className="h-8 w-8 text-primary-600" />
               </div>
             </div>
           </div>

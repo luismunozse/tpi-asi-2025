@@ -129,8 +129,8 @@ export default function RecepcionDashboard() {
                 <p className="text-sm text-gray-600">Check-outs Hoy</p>
                 <p className="text-3xl font-bold text-gray-800 mt-1">{stats.checkoutsHoy}</p>
               </div>
-              <div className="bg-blue-100 rounded-full p-3">
-                <Clock className="h-8 w-8 text-blue-600" />
+              <div className="bg-primary-100 rounded-full p-3">
+                <Clock className="h-8 w-8 text-primary-600" />
               </div>
             </div>
           </div>

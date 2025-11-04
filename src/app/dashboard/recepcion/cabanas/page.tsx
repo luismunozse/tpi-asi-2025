@@ -230,8 +230,8 @@ export default function CabanasRecepcion() {
                 <p className="text-sm text-gray-600">Total</p>
                 <p className="text-3xl font-bold text-gray-800 mt-1">{estadisticas.total}</p>
               </div>
-              <div className="bg-blue-100 rounded-full p-3">
-                <Home className="h-8 w-8 text-blue-600" />
+              <div className="bg-primary-100 rounded-full p-3">
+                <Home className="h-8 w-8 text-primary-600" />
               </div>
             </div>
           </div>
@@ -391,9 +391,9 @@ export default function CabanasRecepcion() {
 
                 {/* Información de reserva actual */}
                 {cabana.reservaActual && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                    <h4 className="font-semibold text-blue-900 mb-2">Reserva Actual:</h4>
-                    <div className="text-sm text-blue-800 space-y-1">
+                  <div className="bg-primary-50 border border-primary-200 rounded-lg p-4 mb-4">
+                    <h4 className="font-semibold text-primary-900 mb-2">Reserva Actual:</h4>
+                    <div className="text-sm text-primary-800 space-y-1">
                       <p><strong>Cliente:</strong> {cabana.reservaActual.cliente}</p>
                       <p><strong>Check-in:</strong> {new Date(cabana.reservaActual.checkin).toLocaleDateString('es-AR')}</p>
                       <p><strong>Check-out:</strong> {new Date(cabana.reservaActual.checkout).toLocaleDateString('es-AR')}</p>

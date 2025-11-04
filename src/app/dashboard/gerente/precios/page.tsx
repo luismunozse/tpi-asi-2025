@@ -216,7 +216,7 @@ export default function PreciosGerente() {
                           className="w-32 px-3 py-2 border border-gray-300 rounded-lg text-center focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                         />
                       ) : (
-                        <span className="text-blue-600 font-semibold">
+                        <span className="text-primary-600 font-semibold">
                           ${precio.temporadaBaja.toLocaleString('es-AR')}
                         </span>
                       )}
@@ -279,8 +279,8 @@ export default function PreciosGerente() {
             </h3>
             <div className="space-y-3 text-sm">
               <div className="flex items-start">
-                <div className="bg-blue-100 rounded-full p-2 mr-3">
-                  <span className="text-blue-600 font-bold">1</span>
+                <div className="bg-primary-100 rounded-full p-2 mr-3">
+                  <span className="text-primary-600 font-bold">1</span>
                 </div>
                 <div>
                   <p className="font-semibold text-gray-800">Temporada Baja</p>
@@ -328,7 +328,7 @@ export default function PreciosGerente() {
                   </div>
                   <div className="flex gap-1 h-6">
                     <div 
-                      className="bg-blue-500 rounded-l flex items-center justify-center text-xs text-white"
+                      className="bg-primary-500 rounded-l flex items-center justify-center text-xs text-white"
                       style={{ width: `${(precio.temporadaBaja / precio.temporadaAlta) * 100}%` }}
                     >
                       {precio.temporadaBaja < 20000 ? '' : 'Baja'}
@@ -353,9 +353,9 @@ export default function PreciosGerente() {
         </div>
 
         {/* Notas Importantes */}
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
-          <h4 className="font-bold text-blue-900 mb-2">Notas Importantes</h4>
-          <ul className="text-sm text-blue-800 space-y-1">
+        <div className="bg-primary-50 border border-primary-200 rounded-xl p-6">
+          <h4 className="font-bold text-primary-900 mb-2">Notas Importantes</h4>
+          <ul className="text-sm text-primary-800 space-y-1">
             <li>• Los precios se aplican automáticamente según la fecha de reserva</li>
             <li>• La tarifa de Booking.com incluye la comisión de la plataforma</li>
             <li>• Todos los precios incluyen desayuno para todos los huéspedes</li>

@@ -61,8 +61,8 @@ export default function GerenteDashboard() {
                 <p className="text-sm text-gray-600">Reservas Hoy</p>
                 <p className="text-3xl font-bold text-gray-800 mt-1">{stats.reservasHoy}</p>
               </div>
-              <div className="bg-blue-100 rounded-full p-3">
-                <Calendar className="h-8 w-8 text-blue-600" />
+              <div className="bg-primary-100 rounded-full p-3">
+                <Calendar className="h-8 w-8 text-primary-600" />
               </div>
             </div>
             <p className="text-sm text-green-600 mt-3">↑ 12% vs ayer</p>
@@ -131,7 +131,7 @@ export default function GerenteDashboard() {
                   <span className="font-semibold">75%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-blue-500 h-2 rounded-full" style={{ width: '75%' }}></div>
+                  <div className="bg-primary-500 h-2 rounded-full" style={{ width: '75%' }}></div>
                 </div>
               </div>
               <div>
