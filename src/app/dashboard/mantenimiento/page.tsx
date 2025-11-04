@@ -1,0 +1,278 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import DashboardLayout from '@/components/DashboardLayout'
+import { ClipboardList, CheckCircle, Clock, AlertTriangle } from 'lucide-react'
+
+export default function MantenimientoDashboard() {
+  const router = useRouter()
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const user = localStorage.getItem('user')
+    if (!user) {
+      router.push('/login')
+      return
+    }
+    const userData = JSON.parse(user)
+    if (userData.role !== 'mantenimiento') {
+      router.push('/login')
+      return
+    }
+    setLoading(false)
+  }, [router])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      </div>
+    )
+  }
+
+  const stats = {
+    tareasHoy: 4,
+    completadas: 2,
+    pendientes: 2,
+    urgentes: 1
+  }
+
+  const tareas = [
+    { id: 1, cabana: 'Cabaña Familiar #1', tarea: 'Limpieza completa', estado: 'En Progreso', prioridad: 'Alta', tiempo: '45 min' },
+    { id: 2, cabana: 'Cabaña Romántica #3', tarea: 'Limpieza completa', estado: 'Pendiente', prioridad: 'Alta', tiempo: '30 min' },
+    { id: 3, cabana: 'Cabaña Standard #5', tarea: 'Limpieza completa', estado: 'Completado', prioridad: 'Media', tiempo: '35 min' },
+    { id: 4, cabana: 'Cabaña Grande #2', tarea: 'Limpieza completa', estado: 'Completado', prioridad: 'Media', tiempo: '60 min' },
+  ]
+
+  const cambiarEstado = (id: number, nuevoEstado: string) => {
+    console.log(`Cambiar tarea ${id} a ${nuevoEstado}`)
+  }
+
+  return (
+    <DashboardLayout role="mantenimiento">
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800">Panel de Mantenimiento</h1>
+          <p className="text-gray-600 mt-1">Gestión de limpieza y mantenimiento de cabañas</p>
+        </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Tareas Hoy</p>
+                <p className="text-3xl font-bold text-gray-800 mt-1">{stats.tareasHoy}</p>
+              </div>
+              <div className="bg-blue-100 rounded-full p-3">
+                <ClipboardList className="h-8 w-8 text-blue-600" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Completadas</p>
+                <p className="text-3xl font-bold text-gray-800 mt-1">{stats.completadas}</p>
+              </div>
+              <div className="bg-green-100 rounded-full p-3">
+                <CheckCircle className="h-8 w-8 text-green-600" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Pendientes</p>
+                <p className="text-3xl font-bold text-gray-800 mt-1">{stats.pendientes}</p>
+              </div>
+              <div className="bg-yellow-100 rounded-full p-3">
+                <Clock className="h-8 w-8 text-yellow-600" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-md p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Urgentes</p>
+                <p className="text-3xl font-bold text-gray-800 mt-1">{stats.urgentes}</p>
+              </div>
+              <div className="bg-red-100 rounded-full p-3">
+                <AlertTriangle className="h-8 w-8 text-red-600" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Lista de Tareas */}
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <h3 className="text-lg font-bold text-gray-800 mb-4">Tareas del Día</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Cabaña</th>
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Tarea</th>
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Prioridad</th>
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Tiempo Est.</th>
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Estado</th>
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tareas.map(tarea => (
+                  <tr key={tarea.id} className="border-b hover:bg-gray-50">
+                    <td className="py-3 px-4 text-sm font-semibold">{tarea.cabana}</td>
+                    <td className="py-3 px-4 text-sm">{tarea.tarea}</td>
+                    <td className="py-3 px-4 text-sm">
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        tarea.prioridad === 'Alta' 
+                          ? 'bg-red-100 text-red-700' 
+                          : 'bg-yellow-100 text-yellow-700'
+                      }`}>
+                        {tarea.prioridad}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-sm">{tarea.tiempo}</td>
+                    <td className="py-3 px-4 text-sm">
+                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                        tarea.estado === 'Completado' 
+                          ? 'bg-green-100 text-green-700'
+                          : tarea.estado === 'En Progreso'
+                          ? 'bg-blue-100 text-blue-700'
+                          : 'bg-gray-100 text-gray-700'
+                      }`}>
+                        {tarea.estado}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-sm">
+                      {tarea.estado === 'Pendiente' && (
+                        <button
+                          onClick={() => cambiarEstado(tarea.id, 'En Progreso')}
+                          className="text-blue-600 hover:text-blue-700 font-semibold"
+                        >
+                          Iniciar
+                        </button>
+                      )}
+                      {tarea.estado === 'En Progreso' && (
+                        <button
+                          onClick={() => cambiarEstado(tarea.id, 'Completado')}
+                          className="text-green-600 hover:text-green-700 font-semibold"
+                        >
+                          Completar
+                        </button>
+                      )}
+                      {tarea.estado === 'Completado' && (
+                        <span className="text-green-600">✓ Listo</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Checklist de Limpieza */}
+        <div className="bg-white rounded-xl shadow-md p-6">
+          <h3 className="text-lg font-bold text-gray-800 mb-4">
+            <ClipboardList className="inline h-5 w-5 mr-2" />
+            Checklist de Limpieza Estándar
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="border rounded-lg p-4">
+              <h4 className="font-semibold text-gray-800 mb-3">Áreas Comunes</h4>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                  Limpieza de pisos y alfombras
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                  Desempolvar muebles
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                  Limpieza de ventanas
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                  Reposición de amenities
+                </li>
+              </ul>
+            </div>
+            <div className="border rounded-lg p-4">
+              <h4 className="font-semibold text-gray-800 mb-3">Baños</h4>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                  Desinfección completa
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                  Reposición de toallas
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                  Reposición de papel higiénico
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                  Limpieza de espejos
+                </li>
+              </ul>
+            </div>
+            <div className="border rounded-lg p-4">
+              <h4 className="font-semibold text-gray-800 mb-3">Habitaciones</h4>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                  Cambio de sábanas y funda
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                  Aspirar y trapear
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                  Ordenar muebles
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                  Vaciar papeleras
+                </li>
+              </ul>
+            </div>
+            <div className="border rounded-lg p-4">
+              <h4 className="font-semibold text-gray-800 mb-3">Cocina</h4>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                  Lavar vajilla y utensilios
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                  Limpiar electrodomésticos
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                  Desinfectar mesadas
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                  Reposición de insumos
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </DashboardLayout>
+  )
+}
+
+
