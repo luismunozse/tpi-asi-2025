@@ -178,7 +178,7 @@ export default function ClientesRecepcion() {
 
   const clientesFiltrados = filtrarClientes()
 
-  const ciudades = [...new Set(clientes.map(c => c.domicilio.ciudad))]
+  const ciudades = Array.from(new Set(clientes.map(c => c.domicilio.ciudad)))
 
   const abrirModal = (cliente: Cliente) => {
     setClienteSeleccionado(cliente)
